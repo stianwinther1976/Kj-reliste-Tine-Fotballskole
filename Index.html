@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kjøreliste – Tine Fotballskole uke 26</title>
+<style>
+  :root{
+    --paper:#f4f6f1;
+    --card:#ffffff;
+    --ink:#16241c;
+    --muted:#5d6b62;
+    --line:#e3e8df;
+    --pitch:#1f8a4c;
+    --morning:#1f6feb;
+    --morning-soft:#e7f0fe;
+    --afternoon:#c2671a;
+    --afternoon-soft:#fcefe2;
+    --today:#fff6da;
+    --today-line:#e9c84a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    padding:20px 16px 64px;
+  }
+  .wrap{max-width:780px;margin:0 auto}
+
+  header{margin-bottom:8px}
+  .eyebrow{font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--pitch)}
+  h1{font-weight:800;font-size:clamp(26px,6vw,38px);line-height:1.05;margin:6px 0 14px;letter-spacing:-.01em}
+  .route{
+    display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;
+    font-weight:700;font-size:15px;
+    background:var(--card);border:1px solid var(--line);border-radius:999px;
+    padding:8px 16px;color:var(--ink);
+  }
+  .route .dot{width:9px;height:9px;border-radius:50%;background:var(--pitch)}
+  .route .dash{flex:1;min-width:26px;border-top:2px dotted var(--muted);opacity:.6}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0 6px;font-size:13px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:11px;height:11px;border-radius:3px}
+  .sw-m{background:var(--morning)}
+  .sw-a{background:var(--afternoon)}
+
+  .day{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px 16px 6px;margin-top:14px;
+    box-shadow:0 1px 0 rgba(22,36,28,.03);
+  }
+  .day.today{background:var(--today);border-color:var(--today-line)}
+  .day-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px}
+  .day-name{font-weight:800;font-size:20px}
+  .badge-today{
+    font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7a5c00;
+    background:#fdedb0;border-radius:999px;padding:3px 9px;
+  }
+
+  .leg{padding:12px 0;border-top:1px solid var(--line)}
+  .leg:first-of-type{border-top:none}
+  .leg-head{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+  .tag{font-weight:700;font-size:11px;letter-spacing:.07em;text-transform:uppercase;border-radius:6px;padding:3px 8px}
+  .tag.m{background:var(--morning-soft);color:var(--morning)}
+  .tag.a{background:var(--afternoon-soft);color:var(--afternoon)}
+  .leg-dir{font-size:13.5px;color:var(--muted);font-weight:500}
+  .leg-dir b{color:var(--ink);font-weight:700}
+  .note{font-size:12.5px;color:var(--afternoon);font-weight:700}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:6px 11px;font-size:14px;font-weight:500;
+  }
+  .chip .seats{
+    font-size:12px;font-weight:700;color:var(--muted);
+    background:var(--card);border:1px solid var(--line);border-radius:6px;padding:1px 6px;
+  }
+  .total{margin-top:9px;font-size:12.5px;color:var(--muted)}
+  .total b{color:var(--ink);font-weight:700}
+  .empty{font-size:13.5px;color:var(--muted);font-style:italic}
+
+  footer{margin-top:26px;font-size:12.5px;color:var(--muted);text-align:center}
+  @media (max-width:480px){.day-name{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Tine Fotballskole · Uke 26</div>
+    <h1>Kjøreliste</h1>
+    <div class="route">
+      <span class="dot"></span> Gjellum
+      <span class="dash"></span>
+      <span class="dot"></span> Arnestad
+    </div>
+    <div class="legend">
+      <span><i class="swatch sw-m"></i> Morgen – til Arnestad (08:30)</span>
+      <span><i class="swatch sw-a"></i> Henting – fra Arnestad (15:30–16:00)</span>
+    </div>
+  </header>
+
+  <main id="days"></main>
+
+  <footer>Dagens dag uthever seg automatisk · Tall i ramme = plasser i bilen</footer>
+</div>
+
+<script>
+  const data = [
+    { day:"Mandag", idx:1,
+      morning:[["Stina",4],["Hege",4],["Lena",6]],
+      afternoon:[["Stina",4],["Hege",4],["Christoffer",5]] },
+    { day:"Tirsdag", idx:2,
+      morningNote:"OBS! kl. 10:15",
+      morning:[["Remi",6],["Christine",4]],
+      afternoon:[["Lene",4],["Christine",4],["Caroline",4]] },
+    { day:"Onsdag", idx:3,
+      morning:[["Hege",4],["Lena",6]],
+      afternoon:[["Remi",6],["Stina",4],["Hege",4],["Caroline",4]] },
+    { day:"Torsdag", idx:4,
+      morning:[["Lene",4],["Lena",6]],
+      afternoon:[["Lena",6],["Christoffer",5]] },
+    { day:"Fredag", idx:5,
+      morning:[["Remi",6],["Lene",4]],
+      afternoonNote:"OBS! kl. 14:00–14:30",
+      afternoon:[["Remi",6],["Christine",4]] },
+  ];
+
+  const today = new Date().getDay();
+
+  function chips(list){
+    if(!list || !list.length) return '<div class="empty">Ingen påmeldte ennå</div>';
+    const seats = list.reduce((s,[,n])=>s+n,0);
+    const html = list.map(([name,n])=>
+      `<span class="chip">${name}<span class="seats">${n}</span></span>`).join("");
+    return `<div class="chips">${html}</div>
+            <div class="total">Totalt <b>${seats}</b> plasser &middot; ${list.length} ${list.length===1?"sj&aring;f&oslash;r":"sj&aring;f&oslash;rer"}</div>`;
+  }
+
+  document.getElementById("days").innerHTML = data.map(d=>`
+    <section class="day ${d.idx===today?"today":""}">
+      <div class="day-head">
+        <span class="day-name">${d.day}</span>
+        ${d.idx===today?'<span class="badge-today">I dag</span>':''}
+      </div>
+      <div class="leg">
+        <div class="leg-head">
+          <span class="tag m">Morgen</span>
+          <span class="leg-dir">Gjellum &rarr; Arnestad &middot; <b>${d.morningNote?"":"08:30"}</b>${d.morningNote?`<span class="note">${d.morningNote}</span>`:""}</span>
+        </div>
+        ${chips(d.morning)}
+      </div>
+      <div class="leg">
+        <div class="leg-head">
+          <span class="tag a">Henting</span>
+          <span class="leg-dir">Arnestad &rarr; hjem &middot; <b>${d.afternoonNote?"":"15:30&ndash;16:00"}</b>${d.afternoonNote?`<span class="note">${d.afternoonNote}</span>`:""}</span>
+        </div>
+        ${chips(d.afternoon)}
+      </div>
+    </section>
+  `).join("");
+</script>
+</body>
+</html>
